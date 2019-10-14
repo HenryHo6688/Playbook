@@ -1,0 +1,26 @@
+---
+- hosts: all
+  user: root
+
+  tasks:
+    - name: disable selinux temporarily
+      selinux:
+        state: disabled
+    - name: disable selinux permanently
+      command: sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config
+    - name: stop firewalld server and disable it on reboot
+      service:
+        name: firewalld
+        state: stopped
+        enabled: false
+    - name: Install a list of applications
+      dnf:
+        name:
+           - wget
+           - curl
+           - unzip
+           - lsof
+           - net-tools
+           - vim
+           - git
+        state: present

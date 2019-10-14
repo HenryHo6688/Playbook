@@ -1,0 +1,14 @@
+---
+- hosts: all
+  user: root
+   
+  tasks:
+  - name: deploy nginx repo.
+    dnf:
+      name: http://nginx.org/packages/mainline/rhel/8/x86_64/RPMS/nginx-1.17.4-1.el8.ngx.x86_64.rpm
+      state: installed
+  - name: start and enable nginx service
+    systemd: 
+      name: nginx
+      state: started
+      enabled: true

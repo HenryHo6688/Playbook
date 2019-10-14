@@ -1,0 +1,52 @@
+--- 
+- 
+  hosts: zabbix_server
+  tasks: 
+    - 
+      dnf: 
+        name: "http://repo.zabbix.com/zabbix/4.2/rhel/8/x86_64/zabbix-release-4.2-2.el8.noarch.rpm"
+        state: installed
+      name: "install zabbix repo."
+    - 
+      dnf: 
+        name: "{{ item }}"
+        state: installed
+      name: "install centos zabbix server"
+      with_items: 
+        - zabbix-server-mysql
+		- zabbix-server
+        - zabbix-proxy-mysql
+        - zabbix-web-mysql
+    - 
+      name: "modify zabbix config"
+      replace: 
+        path: /etc/zabbix/zabbix_server.conf
+        regexp: DBUser=zabbix
+        replace: DBUser=root
+    - 
+      dnf: "pkg=python2-PyMySQL state=latest"
+      name: "Install the Python2 MySQL Support Libraries"
+    -
+      dnf: "pkg=python3-PyMySQL state=latest"
+      name: "Install the Python3 MySQL Support Libraries"
+    - 
+      mysql_user: 
+        check_implicit_admin: true
+        login_password: "{{ mysql_root_password }}"
+        login_user: root
+        name: root
+        password: "{{ mysql_root_password }}"
+        priv: "*.*:ALL,GRANT"
+      name: "update mysql root password for all root accounts"
+    - 
+      mysql_db: "name=zabbix state=import target=/usr/share/doc/zabbix-server-mysql/create.sql.gz login_user=root login_password={{ mysql_root_password }}"
+      name: "import zabbix database and tables"
+    - 
+      name: "start zabbix-server"
+      systemd: 
+        name: zabbix-server
+        state: started
+  user: root
+  vars: 
+    mysql_root_password: hhhhhhhh
+

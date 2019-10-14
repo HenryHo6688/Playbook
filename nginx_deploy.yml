@@ -1,0 +1,21 @@
+---
+- hosts: all
+  user: root
+
+  tasks:
+  - name: copy nginx repo. file
+    copy:
+      src: ~/nginx.repo
+      dest: /etc/yum.repos.d/nginx.repo
+      owner: root
+      group: root
+      mode: '0644'
+  - name: deploy nginx
+    dnf:
+      name: nginx
+      state: installed
+  - name: start and enable nginx service
+    systemd:
+      name: nginx
+      state: started
+      enabled: true
